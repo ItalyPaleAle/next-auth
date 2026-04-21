@@ -50,7 +50,7 @@ describe("OAuth2 clientAssertionProvider", () => {
 
   it("sends client_assertion params (and no client_secret) at the token endpoint", async () => {
     const assertionProvider = vi
-      .fn<[], Promise<string>>()
+      .fn<[{ request: Request }], Promise<string>>()
       .mockResolvedValue("fake.jwt.assertion")
     const { calls, fetchMock } = makeFetchMock()
 
@@ -68,6 +68,11 @@ describe("OAuth2 clientAssertionProvider", () => {
 
     // The assertion provider should be invoked once per token exchange.
     expect(assertionProvider).toHaveBeenCalledTimes(1)
+
+    // It should receive the original inbound Request in its context.
+    const [ctx] = assertionProvider.mock.calls[0]
+    expect(ctx.request).toBeInstanceOf(Request)
+    expect(new URL(ctx.request.url).pathname).toBe("/auth/callback/test-oauth")
 
     const tokenCall = calls.find((c) =>
       c.url.startsWith("https://auth.example.com/token")
@@ -117,7 +122,7 @@ describe("OAuth2 clientAssertionProvider", () => {
 
   it("prefers clientSecret over clientAssertionProvider when both are set", async () => {
     const assertionProvider = vi
-      .fn<[], Promise<string>>()
+      .fn<[{ request: Request }], Promise<string>>()
       .mockResolvedValue("fake.jwt.assertion")
     const { calls, fetchMock } = makeFetchMock()
 

@@ -214,11 +214,23 @@ export interface OAuth2Config<Profile>
    * This enables the use of JWT-based client authentication (for example, with
    * Okta or Microsoft Entra ID) without having to store a long-lived secret.
    *
-   * The caller is responsible for generating/signing the assertion.
+   * The caller is responsible for generating/signing the assertion. The
+   * function receives a context object containing the original inbound
+   * {@link Request} being handled, which can be used (for example) to derive
+   * an assertion that is bound to the current request.
    *
    * @see [RFC 7523 - JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and Authorization Grants](https://www.rfc-editor.org/rfc/rfc7523)
    */
-  clientAssertionProvider?: () => Awaitable<string>
+  clientAssertionProvider?: (context: {
+    /**
+     * The original inbound {@link Request} currently being handled by Auth.js.
+     *
+     * In framework integrations where a subclass of `Request` is passed to
+     * `Auth()` (e.g. `NextRequest` in Next.js), this is the exact same
+     * instance that was passed in and can be cast to that type.
+     */
+    request: Request
+  }) => Awaitable<string>
   /**
    * Pass overrides to the underlying OAuth library.
    * See [`oauth4webapi` client](https://github.com/panva/oauth4webapi/blob/main/docs/interfaces/Client.md) for details.

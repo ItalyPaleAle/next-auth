@@ -161,7 +161,11 @@ export async function Auth(
   const isRedirect = request.headers?.has("X-Auth-Return-Redirect")
   const isRaw = config.raw === raw
   try {
-    const internalResponse = await AuthInternal(internalRequest, config)
+    const internalResponse = await AuthInternal(
+      internalRequest,
+      config,
+      request
+    )
     if (isRaw) return internalResponse
 
     const response = toResponse(internalResponse)

@@ -14,7 +14,8 @@ export { customFetch, raw, skipCSRFCheck } from "./symbols.js"
 /** @internal */
 export async function AuthInternal(
   request: RequestInternal,
-  authOptions: AuthConfig
+  authOptions: AuthConfig,
+  rawRequest: Request
 ): Promise<ResponseInternal> {
   const { action, providerId, error, method } = request
 
@@ -42,7 +43,13 @@ export async function AuthInternal(
     const render = renderPage({ ...options, query: request.query, cookies })
     switch (action) {
       case "callback":
-        return await actions.callback(request, options, sessionStore, cookies)
+        return await actions.callback(
+          request,
+          options,
+          sessionStore,
+          cookies,
+          rawRequest
+        )
       case "csrf":
         return render.csrf(csrfDisabled, options, cookies)
       case "error":
@@ -73,7 +80,13 @@ export async function AuthInternal(
         if (options.provider.type === "credentials")
           // Verified CSRF Token required for credentials providers only
           validateCSRF(action, csrfTokenVerified)
-        return await actions.callback(request, options, sessionStore, cookies)
+        return await actions.callback(
+          request,
+          options,
+          sessionStore,
+          cookies,
+          rawRequest
+        )
       case "session":
         validateCSRF(action, csrfTokenVerified)
         return await actions.session(

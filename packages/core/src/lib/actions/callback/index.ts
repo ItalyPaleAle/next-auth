@@ -34,7 +34,8 @@ export async function callback(
   request: RequestInternal,
   options: InternalOptions,
   sessionStore: SessionStore,
-  cookies: Cookie[]
+  cookies: Cookie[],
+  rawRequest: Request
 ): Promise<ResponseInternal> {
   if (!options.provider)
     throw new InvalidProvider("Callback route called without provider")
@@ -83,7 +84,8 @@ export async function callback(
       const authorizationResult = await handleOAuth(
         params,
         request.cookies,
-        options
+        options,
+        rawRequest
       )
 
       if (authorizationResult.cookies.length) {

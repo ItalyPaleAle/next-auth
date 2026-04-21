@@ -47,7 +47,8 @@ function clientSecretBasic(clientId: string, clientSecret: string) {
 export async function handleOAuth(
   params: RequestInternal["query"],
   cookies: RequestInternal["cookies"],
-  options: InternalOptions<"oauth" | "oidc">
+  options: InternalOptions<"oauth" | "oidc">,
+  request: Request
 ) {
   const { logger, provider } = options
 
@@ -107,7 +108,7 @@ export async function handleOAuth(
         "client_assertion_type",
         "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
       )
-      body.set("client_assertion", await assertionProvider())
+      body.set("client_assertion", await assertionProvider({ request }))
     }
   } else
     switch (client.token_endpoint_auth_method) {
